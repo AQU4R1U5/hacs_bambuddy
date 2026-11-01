@@ -34,6 +34,7 @@ from .auto_off import ENTITIES as AUTO_OFF_ENTITIES, gets_auto_off
 from .cards import async_register_card
 from .const import (
     CONF_API_KEY,
+    CONF_ENABLE_SPOOLS,
     CONF_LIVE_UPDATES,
     CONF_PRINTER_ID,
     CONF_PRINTER_NAME,
@@ -51,6 +52,7 @@ from .coordinator import (
     BamBuddyConfigEntry,
     BamBuddyData,
     BamBuddyInstanceCoordinator,
+    BamBuddyInventoryCoordinator,
     BamBuddyPlugCoordinator,
     BamBuddyPrinterCoordinator,
     BamBuddyUpdateCoordinator,
@@ -185,12 +187,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: BamBuddyConfigEntry) -> 
     if plugs.last_update_success:
         _remove_spare_switch_offs(hass, entry, plugs)
 
+    inventory = None
+    if entry.options.get(CONF_ENABLE_SPOOLS, False):
+        inventory = BamBuddyInventoryCoordinator(hass, entry, client)
+        # Inventory failures must not keep the printers from loading. The
+        # coordinator will retry, and the sensor platform discovers spools
+        # as soon as a later poll succeeds.
+        await inventory.async_refresh()
+
     entry.runtime_data = BamBuddyData(
         client,
         instance,
         updates,
         printers,
         plugs,
+        inventory,
         key=KeyGuard(hass, entry, client, first),
         auth_enabled=auth_enabled,
         live=BamBuddyLive(hass, entry, client),
@@ -410,9 +421,12 @@ def _remove_stale_devices(hass: HomeAssistant, entry: ConfigEntry) -> None:
     }
     registry = dr.async_get(hass)
     plug_prefix = f"{entry.entry_id}_plug_"
+    inventory = f"{entry.entry_id}_spools"
     for device in dr.async_entries_for_config_entry(registry, entry.entry_id):
         names = {identifier for domain, identifier in device.identifiers if domain == DOMAIN}
         if entry.entry_id in names:
+            continue
+        if inventory in names:
             continue
         if any(name.startswith(plug_prefix) for name in names):
             continue

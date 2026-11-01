@@ -2,3 +2,7 @@ custom_components/bambuddy/frontend/bambuddy-card.js -text linguist-generated=tr
 # The bundle is built from these files on Windows and on Linux alike: the
 # same line endings everywhere, or template literals would differ.
 cards/** text eol=lf
+
+# Keep local coding-agent instructions out of generated source archives even if
+# they are force-added to Git.
+/AGENTS.md export-ignore

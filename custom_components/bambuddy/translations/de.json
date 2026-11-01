@@ -185,7 +185,8 @@
         "title": "Einstellungen",
         "description": "Wie Home Assistant mit „{name}“ arbeitet.",
         "menu_options": {
-          "live_updates": "Live-Updates"
+          "live_updates": "Live-Updates",
+          "spool_inventory": "Spuleninventar"
         }
       },
       "add_printer": {
@@ -245,6 +246,17 @@
         "data_description": {
           "live_updates": "Aus: keine Live-Verbindung und keine Verbindungsversuche – es bleiben die Abfrage alle 10 Sekunden und die Nachfragen nach einem Befehl.",
           "push_gap": "Seltener schont BamBuddy und den Verlauf in Home Assistant, etwa bei vielen Druckern oder einem kleinen Rechner. Wirkt nur mit Live-Updates."
+        },
+        "submit": "Speichern"
+      },
+      "spool_inventory": {
+        "title": "Spuleninventar",
+        "description": "Für jede Spule im BamBuddy-Inventar wird ein Sensor angelegt. Sein Zustand ist das verbleibende Filament in Gramm; Material, Farbe und Gewichtsangaben stehen in den Attributen. Neue Inventarspulen erscheinen automatisch.",
+        "data": {
+          "enable_spools": "Spuleninventar verwenden"
+        },
+        "data_description": {
+          "enable_spools": "Das Inventar wird alle 10 Sekunden gelesen. Gemeint ist das gespeicherte BamBuddy-Inventar, nicht die AMS-Fächer oder externe Spule eines Druckers."
         },
         "submit": "Speichern"
       }
@@ -428,6 +440,9 @@
       }
     },
     "sensor": {
+      "inventory_spool": {
+        "name": "{spool_name}"
+      },
       "total_prints": {
         "name": "Drucke gesamt"
       },

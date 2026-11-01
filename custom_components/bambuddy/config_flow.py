@@ -41,6 +41,7 @@ from .api import (
 )
 from .const import (
     CONF_API_KEY,
+    CONF_ENABLE_SPOOLS,
     CONF_LIVE_UPDATES,
     CONF_PRINTER_NAME,
     CONF_PRINTERS,
@@ -629,7 +630,30 @@ class BamBuddyOptionsFlow(OptionsFlow):
         return self.async_show_menu(step_id="printers", menu_options=menu, description_placeholders=self._named())
 
     async def async_step_settings(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        return self.async_show_menu(step_id="settings", menu_options=["live_updates"], description_placeholders=self._named())
+        return self.async_show_menu(
+            step_id="settings",
+            menu_options=["live_updates", "spool_inventory"],
+            description_placeholders=self._named(),
+        )
+
+    async def async_step_spool_inventory(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Enable or disable sensors for BamBuddy's inventory spools."""
+        entry = self.config_entry
+        if user_input is not None:
+            return self.async_create_entry(
+                data={**entry.options, CONF_ENABLE_SPOOLS: user_input[CONF_ENABLE_SPOOLS]}
+            )
+        return self.async_show_form(
+            step_id="spool_inventory",
+            data_schema=form_schema(
+                {
+                    vol.Required(
+                        CONF_ENABLE_SPOOLS,
+                        default=bool(entry.options.get(CONF_ENABLE_SPOOLS, False)),
+                    ): BooleanSelector()
+                }
+            ),
+        )
 
     async def async_step_live_updates(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """The live connection, tested at every opening: the entry's own

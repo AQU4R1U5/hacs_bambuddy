@@ -13,6 +13,7 @@ CONF_PRINTERS = "printers"
 # Configure -> Settings -> Live updates, in the options beside the printers.
 CONF_LIVE_UPDATES = "live_updates"
 CONF_PUSH_GAP = "push_gap"
+CONF_ENABLE_SPOOLS = "enable_spools"
 CONF_PRINTER_ID = "printer_id"
 CONF_PRINTER_NAME = "printer_name"
 # The printer's serial number: what the entry knows it by.
@@ -34,6 +35,7 @@ REQUIRED_SCOPES: dict[str, frozenset[str]] = {
             "smart_plugs:read",
             "maintenance:read",
             "kprofiles:read",
+            "inventory:read",
         }
     ),
     "control_printer": frozenset({"printers:control", "printers:clear_plate", "printers:ams_rfid", "smart_plugs:control"}),
@@ -100,6 +102,10 @@ PLUG_STATISTICS_KEEP = timedelta(days=10)
 # How often that is looked at, beside each setup.
 PLUG_HISTORY_INTERVAL = timedelta(days=1)
 REFRESH_AFTER_PLUG = 2.0
+# BamBuddy's inventory changes independently of a printer. Keep the polling
+# interval of the date-based integration so weighing and usage updates appear
+# promptly in Home Assistant.
+INVENTORY_INTERVAL = timedelta(seconds=10)
 # A printer BamBuddy no longer lists: its list read so often until it is back.
 MISSING_INTERVAL = timedelta(seconds=60)
 # The printer's K profiles, once listed: what Set filament picks from for so

@@ -289,6 +289,10 @@ class BamBuddyClient:
     async def get_printers(self) -> list[dict[str, Any]]:
         return await self._list("/printers/")
 
+    async def get_inventory_spools(self) -> list[dict[str, Any]]:
+        """All spools in BamBuddy's inventory."""
+        return await self._list("/inventory/spools")
+
     async def get_printer(self, printer_id: int) -> dict[str, Any]:
         return await self._object(f"/printers/{printer_id}")
 

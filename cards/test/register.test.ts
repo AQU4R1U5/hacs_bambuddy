@@ -70,7 +70,7 @@ describe("the card picker", () => {
     expect(customElements.get("bambuddy-printer-card")).toBeDefined();
     expect(entries[0]?.preview).toBe(true);
     expect(entries[0]?.documentationURL).toBe(DOCS_URL);
-    expect(DOCS_URL).toBe("https://github.com/Spegeli/hacs_bambuddy#-dashboard-card");
+    expect(DOCS_URL).toBe("https://github.com/AQU4R1U5/hacs_bambuddy#-dashboard-card");
   });
 
   it("names and describes the card in Home Assistant's language", () => {

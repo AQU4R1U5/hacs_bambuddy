@@ -7,8 +7,8 @@ By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md).
 ## Ways to contribute
 
 - **Report a security vulnerability** — privately, never as a public issue: see the [security policy](SECURITY.md).
-- **Report a bug** — [open a bug report](https://github.com/Spegeli/hacs_bambuddy/issues/new?template=bug_report.yml). The versions of the integration, BamBuddy and Home Assistant, the diagnostics and a debug log help most.
-- **Suggest a feature** — [open a feature request](https://github.com/Spegeli/hacs_bambuddy/issues/new?template=feature_request.yml).
+- **Report a bug** — [open a bug report](https://github.com/AQU4R1U5/hacs_bambuddy/issues/new?template=bug_report.yml). The versions of the integration, BamBuddy and Home Assistant, the diagnostics and a debug log help most.
+- **Suggest a feature** — [open a feature request](https://github.com/AQU4R1U5/hacs_bambuddy/issues/new?template=feature_request.yml).
 - **Improve translations** — corrections and new languages are welcome, see [Translations](#translations).
 - **Submit a change** — see [Pull requests](#pull-requests).
 

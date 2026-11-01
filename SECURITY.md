@@ -4,7 +4,7 @@
 
 Please report a vulnerability privately, never in a public issue, discussion or pull request:
 
-1. Open [Report a vulnerability](https://github.com/Spegeli/hacs_bambuddy/security/advisories/new) — or the **Security** tab → **Report a vulnerability**.
+1. Open [Report a vulnerability](https://github.com/AQU4R1U5/hacs_bambuddy/security/advisories/new) — or the **Security** tab → **Report a vulnerability**.
 2. Describe the problem, how to reproduce it and what an attacker could do with it. Name the versions of the integration, of BamBuddy and of Home Assistant.
 
 Never put a real API key into a report. If your key has leaked, delete it in BamBuddy (**Settings → API Keys**) and create a new one.

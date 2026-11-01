@@ -185,7 +185,8 @@
         "title": "Settings",
         "description": "How Home Assistant works with “{name}”.",
         "menu_options": {
-          "live_updates": "Live updates"
+          "live_updates": "Live updates",
+          "spool_inventory": "Spool inventory"
         }
       },
       "add_printer": {
@@ -245,6 +246,17 @@
         "data_description": {
           "live_updates": "Off: no live connection and no attempts to open one – the read every 10 seconds and the reads after a command stay.",
           "push_gap": "Less often spares BamBuddy and Home Assistant's history, with many printers or a small computer, say. Applies only with live updates."
+        },
+        "submit": "Save"
+      },
+      "spool_inventory": {
+        "title": "Spool inventory",
+        "description": "Create one sensor for every spool in BamBuddy's inventory. Its state is the remaining filament in grams; the spool's material, colour and weight details are attributes. New inventory spools appear automatically.",
+        "data": {
+          "enable_spools": "Use spool inventory"
+        },
+        "data_description": {
+          "enable_spools": "The inventory is read every 10 seconds. This is BamBuddy's stored inventory, not the AMS slots or external spool of a printer."
         },
         "submit": "Save"
       }
@@ -428,6 +440,9 @@
       }
     },
     "sensor": {
+      "inventory_spool": {
+        "name": "{spool_name}"
+      },
       "total_prints": {
         "name": "Total prints"
       },

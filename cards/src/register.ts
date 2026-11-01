@@ -31,7 +31,7 @@ export function whenRegistryReady(
   });
 }
 
-export const DOCS_URL = "https://github.com/Spegeli/hacs_bambuddy#-dashboard-card";
+export const DOCS_URL = "https://github.com/AQU4R1U5/hacs_bambuddy#-dashboard-card";
 
 export interface CardInfo {
   /** Read each time the card picker opens: in the language of that moment. */

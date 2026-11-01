@@ -1,5 +1,4 @@
-"""Polling BamBuddy: one coordinator per printer for its live status, one for
-the instance's figures, one for the update checks, one for the smart plugs."""
+"""Polling BamBuddy: printers, instance figures, updates, inventory and plugs."""
 from __future__ import annotations
 
 import asyncio
@@ -39,6 +38,7 @@ from .const import (
     DOMAIN,
     HOLD_LIMIT,
     INSTANCE_INTERVAL,
+    INVENTORY_INTERVAL,
     MAINTENANCE_INTERVAL,
     PLUG_INTERVAL,
     PLUG_LIST_INTERVAL,
@@ -914,6 +914,25 @@ class BamBuddyUpdateCoordinator(_BamBuddyCoordinator):
         }
 
 
+class BamBuddyInventoryCoordinator(DataUpdateCoordinator[list[dict[str, Any]]]):
+    """The optional BamBuddy spool inventory, read every ten seconds."""
+
+    config_entry: BamBuddyConfigEntry
+
+    def __init__(self, hass: HomeAssistant, entry: BamBuddyConfigEntry, client: BamBuddyClient) -> None:
+        super().__init__(
+            hass,
+            _LOGGER,
+            config_entry=entry,
+            name=f"{DOMAIN} inventory",
+            update_interval=INVENTORY_INTERVAL,
+        )
+        self.client = client
+
+    async def _async_update_data(self) -> list[dict[str, Any]]:
+        return await fetch(self.client.get_inventory_spools(), entry=self.config_entry)
+
+
 class BamBuddyPlugCoordinator(DataUpdateCoordinator[dict[int, Plug]]):
     """The smart plugs BamBuddy links to the printers set up here: its list
     once a minute, each plug's state every 15 s. A key that may not read
@@ -1150,6 +1169,8 @@ class BamBuddyData:
     printers: dict[int, BamBuddyPrinterCoordinator]
     # The smart plugs of the printers.
     plugs: BamBuddyPlugCoordinator
+    # BamBuddy's optional inventory of stored spools.
+    inventory: BamBuddyInventoryCoordinator | None
     key: KeyGuard
     # BamBuddy's authentication on or off (None: it did not say), for the diagnostics.
     auth_enabled: bool | None

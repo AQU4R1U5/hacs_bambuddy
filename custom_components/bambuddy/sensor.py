@@ -1,6 +1,4 @@
-"""BamBuddy's sensors: its own figures, each printer's status, the AMS
-units' slots, humidity and temperature, and the smart plugs' power and
-energy."""
+"""BamBuddy sensors: instance, printers, AMS, inventory and smart plugs."""
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -30,11 +28,17 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers.typing import StateType
-from homeassistant.util import dt as dt_util
+from homeassistant.util import dt as dt_util, slugify
 
-from .const import DOMAIN
-from .coordinator import BamBuddyConfigEntry, BamBuddyInstanceCoordinator, BamBuddyPlugCoordinator, BamBuddyPrinterCoordinator
+from .coordinator import (
+    BamBuddyConfigEntry,
+    BamBuddyInstanceCoordinator,
+    BamBuddyInventoryCoordinator,
+    BamBuddyPlugCoordinator,
+    BamBuddyPrinterCoordinator,
+)
 from .entity import (
     BamBuddyAmsEntity,
     BamBuddyDescribedEntity,
@@ -42,6 +46,7 @@ from .entity import (
     BamBuddyPlugEntity,
     async_add_ams_entities,
     async_add_plug_entities,
+    inventory_device_info,
 )
 from .models import (
     ACTIVE_STATES,
@@ -485,7 +490,120 @@ async def async_setup_entry(
         )
         _add_ams_units(coordinator, async_add_entities)
     _add_plug_sensors(runtime.plugs, async_add_entities)
+    if runtime.inventory is not None:
+        _add_inventory_spools(hass, entry, runtime.inventory, async_add_entities)
     async_add_entities(entities)
+
+
+def _add_inventory_spools(
+    hass: HomeAssistant,
+    entry: BamBuddyConfigEntry,
+    coordinator: BamBuddyInventoryCoordinator,
+    async_add_entities: AddConfigEntryEntitiesCallback,
+) -> None:
+    """Add known inventory spools now and newly reported ones later."""
+    known: set[int] = set()
+
+    @callback
+    def discover() -> None:
+        if not coordinator.last_update_success:
+            return
+        new: list[SensorEntity] = []
+        for spool in coordinator.data or []:
+            spool_id = spool.get("id")
+            if not isinstance(spool_id, int) or isinstance(spool_id, bool) or spool_id in known:
+                continue
+            known.add(spool_id)
+            new.append(BamBuddyInventorySpoolSensor(hass, coordinator, entry, spool_id))
+        if new:
+            async_add_entities(new)
+
+    entry.async_on_unload(coordinator.async_add_listener(discover))
+    discover()
+
+
+class BamBuddyInventorySpoolSensor(CoordinatorEntity[BamBuddyInventoryCoordinator], SensorEntity):
+    """Remaining filament of one spool in BamBuddy's inventory."""
+
+    _attr_has_entity_name = True
+    _attr_translation_key = "inventory_spool"
+    _attr_icon = "mdi:spool"
+    _attr_device_class = SensorDeviceClass.WEIGHT
+    _attr_native_unit_of_measurement = UnitOfMass.GRAMS
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        coordinator: BamBuddyInventoryCoordinator,
+        entry: BamBuddyConfigEntry,
+        spool_id: int,
+    ) -> None:
+        super().__init__(coordinator)
+        self._spool_id = spool_id
+        spool_name = self._name(self._spool)
+        # Kept identical to the date-based custom integration so existing
+        # entity IDs, names and history survive the upgrade.
+        self._attr_unique_id = f"{entry.entry_id}_spool_{spool_id}"
+        self._attr_translation_placeholders = {"spool_name": spool_name}
+        self._attr_suggested_object_id = slugify(spool_name)
+        self._attr_device_info = inventory_device_info(hass, entry)
+
+    @staticmethod
+    def _name(spool: dict[str, Any]) -> str:
+        parts = [
+            f"({spool.get('id')})",
+            spool.get("brand"),
+            spool.get("material"),
+            spool.get("subtype"),
+            spool.get("color_name"),
+        ]
+        return " ".join(str(part) for part in parts if part)
+
+    @property
+    def _spool(self) -> dict[str, Any]:
+        return next(
+            (spool for spool in self.coordinator.data or [] if spool.get("id") == self._spool_id),
+            {},
+        )
+
+    @property
+    def available(self) -> bool:
+        return super().available and bool(self._spool)
+
+    @property
+    def native_value(self) -> float | None:
+        spool = self._spool
+        label_weight = spool.get("label_weight")
+        weight_used = spool.get("weight_used")
+        if not isinstance(label_weight, int | float) or isinstance(label_weight, bool):
+            return None
+        if not isinstance(weight_used, int | float) or isinstance(weight_used, bool):
+            return None
+        return round(label_weight - weight_used, 2)
+
+    @staticmethod
+    def _round(value: Any) -> Any:
+        return round(value, 2) if isinstance(value, float) else value
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        spool = self._spool
+        return {
+            "material": spool.get("material"),
+            "subtype": spool.get("subtype"),
+            "color_name": spool.get("color_name"),
+            "rgba": spool.get("rgba"),
+            "brand": spool.get("brand"),
+            "label_weight": spool.get("label_weight"),
+            "core_weight": spool.get("core_weight"),
+            "weight_used": self._round(spool.get("weight_used")),
+            "slicer_filament_name": spool.get("slicer_filament_name"),
+            "tag_uuid": spool.get("tag_uid"),
+            "tag_type": spool.get("tag_type"),
+            "last_scale_weight": spool.get("last_scale_weight"),
+            "last_weight_at": spool.get("last_weighed_at"),
+        }
 
 
 def _add_ams_units(coordinator: BamBuddyPrinterCoordinator, async_add_entities: AddConfigEntryEntitiesCallback) -> None:

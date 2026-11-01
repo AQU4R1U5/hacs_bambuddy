@@ -36,9 +36,9 @@ This Code of Conduct applies within all community spaces — including issues, p
 
 ## Enforcement
 
-This is a small project with a single maintainer, [@Spegeli](https://github.com/Spegeli), and GitHub has no private messages. To report abusive, harassing, or otherwise unacceptable behavior:
+This is a small project with a single maintainer, [@AQU4R1U5](https://github.com/AQU4R1U5), and GitHub has no private messages. To report abusive, harassing, or otherwise unacceptable behavior:
 
-- **In public:** mention @Spegeli where it happens, in the issue or pull request concerned. If there is no such place, open an issue and mention @Spegeli there.
+- **In public:** mention @AQU4R1U5 where it happens, in the issue or pull request concerned. If there is no such place, open an issue and mention @AQU4R1U5 there.
 - **In private:** choose **Report content** in the ⋯ menu of the issue, pull request, or comment concerned, or **Block or report** on the person's profile. GitHub Support handles these reports.
 
 All complaints will be reviewed and investigated promptly and fairly. The maintainer is obligated to respect the privacy and security of the reporter of any incident.

@@ -56,6 +56,18 @@ def instance_device_info(entry: BamBuddyConfigEntry, version: str | None) -> Dev
     )
 
 
+def inventory_device_info(hass: HomeAssistant, entry: BamBuddyConfigEntry) -> DeviceInfo:
+    """The spool inventory device, linked to the BamBuddy instance."""
+    device = DeviceInfo(
+        identifiers={(DOMAIN, f"{entry.entry_id}_spools")},
+        name="Spools",
+        manufacturer="BamBuddy",
+        model="BamBuddy Inventory",
+        configuration_url=entry.data[CONF_URL],
+    )
+    return _with_parent(hass, entry.entry_id, device, (DOMAIN, entry.entry_id))
+
+
 def printer_device_info(hass: HomeAssistant, coordinator: BamBuddyPrinterCoordinator) -> DeviceInfo:
     entry = coordinator.config_entry
     info = coordinator.info
